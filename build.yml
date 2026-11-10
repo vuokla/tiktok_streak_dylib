@@ -1,0 +1,30 @@
+name: Build TikTokStreak Dylib for iOS
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compile TikTokStreak.dylib with Apple Clang (arm64 & arm64e)
+        run: |
+          mkdir -p output
+          xcrun -sdk iphoneos clang -dynamiclib \
+            -arch arm64 -arch arm64e \
+            -miphoneos-version-min=14.0 \
+            -framework UIKit -framework Foundation -framework CoreGraphics \
+            -fobjc-arc -O3 \
+            TikTokStreak.m -o output/TikTokStreak.dylib
+          ls -lh output/TikTokStreak.dylib
+
+      - name: Upload TikTokStreak.dylib Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TikTokStreak-dylib
+          path: output/TikTokStreak.dylib
